@@ -6,5 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Playground — Complete Intro to Vue 3</title>
   </head>
-  <body></body>
+  <body>
+    <div id="app">
+      <h1>{{count}}</h1>
+
+      <button v-on:click="incrementCount">Increment</button>
+      <br />
+      <label for="step">Increment by:</label>
+      <input
+        type="range"
+        min="1"
+        max="10"
+        step="1"
+        name="step"
+        id="step"
+        v-model.number="step"
+      />
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+      Vue.createApp({
+        data: () => ({
+          count: 0,
+          step: 1,
+        }),
+        methods: {
+          incrementCount() {
+            this.count += this.step;
+          },
+         
+        },
+      }).mount("#app");
+    </script>
+  </body>
 </html>
