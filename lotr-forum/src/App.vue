@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import CharacterCard from './components/CharacterCard.vue';
 import CharacterStats from './components/CharacterStats.vue';
+import NewCharacterForm from './components/NewCharacterForm.vue';
 </script>
 
 <script lang="ts">
@@ -55,28 +57,8 @@ export default {
         this.favoriteCharacters.add(id);
       }
     },
-    addCharacter(event: Event) {
-      event.preventDefault();
-
-      if (!event.target) {
-        const error = new Error('SubmitEvent has a null target');
-        error.name = 'EventError';
-        throw error;
-      }
-      if (!(event.target instanceof HTMLFormElement)) {
-        const error = new Error('SubmitEvent does not have a form target');
-        error.name = 'SubmitError';
-        throw error;
-      }
-
-      const data = new FormData(event.target);
-      const name = data.get('new-character-name');
-      const species = data.get('new-character-species');
-      if (typeof name === 'string' && isSpecies(species)) {
-        this.characters.push({ id: crypto.randomUUID(), name, species });
-      }
-
-      event.target.reset();
+    addCharacter(character: Character) {
+      this.characters.push(character);
     }
   }
 };
@@ -85,35 +67,15 @@ export default {
 <template>
   <main>
     <section>
-      <form @submit="addCharacter">
-        <label for="new-character"
-          >Name
-
-          <input type="text" name="new-character-name" id="new-character-name" />
-        </label>
-        <label for="new-character"
-          >Species
-
-          <select name="new-character-species" id="new-character-species">
-            <option v-for="species in speciesList" :key="species">{{ species }}</option>
-          </select>
-        </label>
-
-        <input type="submit" value="Save" />
-      </form>
+      <NewCharacterForm @submit-character="addCharacter" />
       <p v-if="characters.length === 0">No characters are available.</p>
       <ul v-else>
         <li v-for="character in characters" :key="character.id">
-          <div>
-            <p>{{ character.name }}</p>
-            <button
-              v-if="favoriteCharacters.has(character.id)"
-              @click="toggleCharacterLike(character.id)"
-            >
-              Unlike
-            </button>
-            <button v-else @click="toggleCharacterLike(character.id)">Like</button>
-          </div>
+          <CharacterCard
+            :character="character"
+            :isFavorite="favoriteCharacters.has(character.id)"
+            @toggle-favorite="toggleCharacterLike"
+          />
         </li>
       </ul>
     </section>
@@ -132,31 +94,9 @@ main {
   gap: 3rem;
 }
 
-form {
-  margin: 1rem 0;
-
-  outline: 1px solid mediumaquamarine;
-  outline-offset: 0.5rem;
-}
-
-form label {
-  display: flex;
-  gap: 1rem;
-  align-items: baseline;
-
-  margin: 0.5rem 0;
-}
-
 ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
-}
-
-li div {
-  display: flex;
-  gap: 1rem;
-
-  padding: 0.5rem 0;
 }
 </style>
