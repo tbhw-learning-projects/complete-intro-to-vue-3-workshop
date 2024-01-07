@@ -1,89 +1,48 @@
 <script setup lang="ts">
-import CharacterCard from './components/CharacterCard.vue';
-import CharacterStats from './components/CharacterStats.vue';
-import NewCharacterForm from './components/NewCharacterForm.vue';
+import PokemonListPage from './components/pages/PokemonListPage.vue';
+import PokemonDetailsPage from './components/pages/PokemonDetailsPage.vue';
 import BaseLayout from './components/layouts/BaseLayout.vue';
 </script>
 
 <script lang="ts">
-export const speciesList = ['Dwarf', 'Elf', 'Hobbit', 'Human'] as const;
-type Species = (typeof speciesList)[number];
-export function isSpecies(value: unknown): value is Species {
-  return speciesList.includes(value as unknown as Species);
-}
-
-export interface Character {
-  id: string;
-  name: string;
-  species: Species;
-}
 
 export default {
-  components: { CharacterStats },
+  components: { ListPage: PokemonListPage, DetailsPage: PokemonDetailsPage },
   data: () => ({
-    favoriteCharacters: new Set(),
-    characters: [
-      {
-        id: '00ad8330-f0a0-4957-9043-c0d47b67dd6d',
-        name: 'Frodo Baggins',
-        species: 'Hobbit'
-      },
-      {
-        id: '0015ddd3-4a77-4404-8d0e-63574db977f5',
-        name: 'Samwise Gamgee',
-        species: 'Hobbit'
-      },
-      {
-        id: 'ef2f907c-c19c-4d2c-a859-40eaf58bd892',
-        name: 'Pippin Took',
-        species: 'Hobbit'
-      },
-      {
-        id: '806924b1-0a9f-41ca-afb4-8a4acfcfb51c',
-        name: 'Merry Brandybuck',
-        species: 'Hobbit'
-      },
-      {
-        id: '959741c2-1e12-4ba4-8534-375d13ce3042',
-        name: 'Gimli Son of Gloin',
-        species: 'Dwarf'
-      }
-    ] as Character[]
+    activePage: "List",
+    activePokemon: null as null | number
   }),
-  methods: {
-    toggleCharacterLike(id: string) {
-      if (this.favoriteCharacters.has(id)) {
-        this.favoriteCharacters.delete(id);
-      } else {
-        this.favoriteCharacters.add(id);
-      }
+  computed: {
+    activePageComponent() {
+      return this.activePage + "Page"
     },
-    addCharacter(character: Character) {
-      this.characters.push(character);
+    activePageProps() {
+      if (this.activePage === "List") {
+        return {}
+      } else {
+        return {
+          id: this.activePokemon
+        }
+      }
     }
-  }
+  },
+  methods: {
+    setPage(page: string | number) {
+      if (typeof page === "string") {
+        this.activePage = page
+        this.activePokemon = null;
+      } else {
+        this.activePage = "Details"
+        this.activePokemon = page;
+      }
+    }
+  },
 };
 </script>
 
 <template>
-  <BaseLayout>
-    <template v-slot:main>
-        <NewCharacterForm @submit-character="addCharacter" />
-        <p v-if="characters.length === 0">No characters are available.</p>
-        <ul v-else>
-          <li v-for="character in characters" :key="character.id">
-            <CharacterCard
-            :character="character"
-            :isFavorite="favoriteCharacters.has(character.id)"
-            @toggle-favorite="toggleCharacterLike"
-            />
-          </li>
-        </ul>
-    </template>
-    
-    <template v-slot:aside>
-        <CharacterStats :characters="characters" />
-    </template>
+  <BaseLayout @navigate="setPage('List')">
+    <component :is="activePageComponent" @navigate="setPage" v-bind="activePageProps"/>
   </BaseLayout>
 </template>
 
