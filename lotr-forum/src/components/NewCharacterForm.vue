@@ -52,7 +52,7 @@ export default {
 
 <style scoped>
 form {
-  margin: 1rem 0;
+  margin: 0 0 1rem 0;
 
   outline: 1px solid mediumaquamarine;
   outline-offset: 0.5rem;

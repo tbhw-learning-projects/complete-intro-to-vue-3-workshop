@@ -2,6 +2,7 @@
 import CharacterCard from './components/CharacterCard.vue';
 import CharacterStats from './components/CharacterStats.vue';
 import NewCharacterForm from './components/NewCharacterForm.vue';
+import BaseLayout from './components/layouts/BaseLayout.vue';
 </script>
 
 <script lang="ts">
@@ -65,34 +66,28 @@ export default {
 </script>
 
 <template>
-  <main>
-    <section>
-      <NewCharacterForm @submit-character="addCharacter" />
-      <p v-if="characters.length === 0">No characters are available.</p>
-      <ul v-else>
-        <li v-for="character in characters" :key="character.id">
-          <CharacterCard
+  <BaseLayout>
+    <template v-slot:main>
+        <NewCharacterForm @submit-character="addCharacter" />
+        <p v-if="characters.length === 0">No characters are available.</p>
+        <ul v-else>
+          <li v-for="character in characters" :key="character.id">
+            <CharacterCard
             :character="character"
             :isFavorite="favoriteCharacters.has(character.id)"
             @toggle-favorite="toggleCharacterLike"
-          />
-        </li>
-      </ul>
-    </section>
-    <section class="statistics">
-      <CharacterStats :characters="characters" />
-    </section>
-  </main>
+            />
+          </li>
+        </ul>
+    </template>
+    
+    <template v-slot:aside>
+        <CharacterStats :characters="characters" />
+    </template>
+  </BaseLayout>
 </template>
 
 <style scoped>
-main {
-  width: 100%;
-
-  display: flex;
-  flex-direction: row;
-  gap: 3rem;
-}
 
 ul {
   list-style-type: none;
