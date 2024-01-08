@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import PokemonListPage from './components/pages/PokemonListPage.vue';
-import PokemonDetailsPage from './components/pages/PokemonDetailsPage.vue';
-import BaseLayout from './components/layouts/BaseLayout.vue';
+import PokemonListPage from '@components/pages/PokemonListPage.vue';
+import PokemonDetailsPage from '@components/pages/PokemonDetailsPage.vue';
+import BaseLayout from '@components/layouts/BaseLayout.vue';
 import { computed, ref } from 'vue';
 
 const activePage = ref('List');

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import PokemonCard from '../PokemonCard.vue';
-import PokemonStats from '../PokemonStats.vue';
-import ImportPokemonForm from '../ImportPokemonForm.vue';
-import TwoColumnLayout from '../layouts/TwoColumnLayout.vue';
+import PokemonCard from '@components/PokemonCard.vue';
+import PokemonStats from '@components/PokemonStats.vue';
+import ImportPokemonForm from '@components/ImportPokemonForm.vue';
+import TwoColumnLayout from '@components/layouts/TwoColumnLayout.vue';
+import {useFavoritePokemon} from '@composables/useFavoritePokemon';
 import { PokemonClient, type Pokemon as RawPokemon } from 'pokenode-ts';
 import { ref } from 'vue';
 
@@ -22,17 +23,9 @@ const [pokemonListResult, { results: typeListResult }] = await Promise.all([
   typeListPromise
 ]);
 
-const favoritePokemon = ref(new Set());
+const {favoritePokemon, toggleFavoritePokemon} = useFavoritePokemon();
 const pokemonList = ref(pokemonListResult);
 const typeList = ref(typeListResult);
-
-function togglePokemonLike(id: number) {
-  if (favoritePokemon.value.has(id)) {
-    favoritePokemon.value.delete(id);
-  } else {
-    favoritePokemon.value.add(id);
-  }
-}
 
 function goTo(id: number) {
   emit('navigate', id);
@@ -60,7 +53,7 @@ async function importPokemon(pokemon: { name: string }) {
           <PokemonCard
             :pokemon="pokemon"
             :isFavorite="favoritePokemon.has(pokemon.id)"
-            @toggle-favorite="togglePokemonLike"
+            @toggle-favorite="toggleFavoritePokemon"
             @view-details="goTo(pokemon.id)"
           />
         </li>
