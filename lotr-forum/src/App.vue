@@ -42,7 +42,13 @@ export default {
 
 <template>
   <BaseLayout @navigate="setPage('List')">
-    <component :is="activePageComponent" @navigate="setPage" v-bind="activePageProps"/>
+    <Suspense>
+      <component :is="activePageComponent" @navigate="setPage" v-bind="activePageProps"/>
+
+      <template v-slot:fallback>
+        Loading...
+      </template>
+    </Suspense>
   </BaseLayout>
 </template>
 

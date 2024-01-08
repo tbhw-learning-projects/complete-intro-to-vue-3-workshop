@@ -1,8 +1,9 @@
 <template>
   <a class="card" href="#" @click.prevent="viewDetails(pokemon.id)">
     <p class="name">{{ pokemon.name }}</p>
-    <button v-if="isFavorite" @click="toggleLike(pokemon.id)">❤️</button>
-    <button v-else @click.prevent="toggleLike(pokemon.id)">🤍</button>
+    <img v-bind:src="imageUrl" v-bind:alt="'An image of ' + pokemon.name"/>
+    <button v-if="isFavorite" @click="toggleLike">❤️</button>
+    <button v-else @click.prevent="toggleLike">🤍</button>
   </a>
 </template>
 
@@ -21,10 +22,16 @@ export default {
       required: true
     }
   },
+  computed: {
+    imageUrl() {
+      return this.pokemon.sprites.front_default ?? undefined
+    }
+  },
   emits: ['toggle-favorite', 'view-details'],
   methods: {
-    toggleLike(id: number) {
-      this.$emit('toggle-favorite', id);
+    toggleLike(event: Event) {
+      event.stopPropagation()
+      this.$emit('toggle-favorite', this.pokemon.id);
     },
     viewDetails(id: number) {
       this.$emit('view-details', id);
@@ -35,6 +42,9 @@ export default {
 
 <style scoped>
 .card {
+  position: relative;
+  isolation: isolate;
+
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -44,6 +54,16 @@ export default {
 
   border-radius: 1rem;
   box-shadow: 1px 2px 5px -1px var(--color-border-hover);
+}
+
+.card button {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+}
+
+.card:hover:has(button:hover) {
+  background-color: initial;
 }
 
 .name {
