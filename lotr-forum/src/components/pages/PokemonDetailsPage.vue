@@ -1,70 +1,62 @@
 <template>
-  <p v-if="pokemon === null">Loading...</p>
+  <p v-if="pokemon === null">Loading pokemon...</p>
   <div v-else>
     <h1 class="name">{{ pokemon.name }}</h1>
-    <h2>Stats</h2>
-    <dl class="stats">
-        <div v-for="[name, value] in stats" :key="name">
-            <dt>{{String(name).replace("-", " ")}}</dt>
-            <dd>{{ value }}</dd>
-        </div>
-    </dl>
-    <h2>Abilities</h2>
-    <ul>
-        <li v-for="ability in abilities" :key="ability">{{ ability }}</li>
-    </ul>    
-    <!-- <pre>{{ details }}</pre> -->
+    <div class="details">
+        <section aria-label="stats">
+            <h2>Stats</h2>
+            <dl class="stats">
+                <div v-for="[name, value] in stats" :key="name">
+                    <dt>{{name.replace("-", " ")}}</dt>
+                    <dd>{{ value }}</dd>
+                </div>
+            </dl>
+        </section>
+        <section aria-label="abilities">
+            <h2>Abilities</h2>
+            <ul>
+                <li v-for="ability in abilities" :key="ability">{{ ability }}</li>
+            </ul>
+        </section>    
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { PokemonClient } from 'pokenode-ts';
 import type { Pokemon } from 'pokenode-ts';
-</script>
+import { computed, ref } from 'vue';
 
-<script lang="ts">
-const client = new PokemonClient();
-
-export default {
-  props: {
+const props = defineProps({
     id: {
       type: Number,
       required: true
     }
-  },
-  data: () => ({
-    pokemon: null as null | Pokemon
-  }),
-  computed: {
-    abilities() {
-      return this.pokemon?.abilities.map(({ ability: { name } }) => name);
-    },
-    moves() {
-      return this.pokemon?.moves.map(({ move: { name } }) => name);
-    },
-    stats() {
-      return this.pokemon?.stats.map(({ stat: { name }, base_stat }) => [name, base_stat]);
-    },
-    details() {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const {name, abilities, moves, stats, ...details} = this.pokemon ?? {};
-        return details;
-    }
-  },
-  methods: {
-    async getPokemonData() {
-      this.pokemon = await client.getPokemonById(this.id);
-    }
-  },
-  created() {
-    this.getPokemonData();
+  });
+
+  async function getPokemonData() {
+    return await client.getPokemonById(props.id);
   }
-};
+
+const client = new PokemonClient();
+const pokemon = ref<null | Pokemon>(null);
+
+const abilities = computed(() => pokemon.value?.abilities.map(({ ability: { name } }) => name))
+const stats = computed(() => pokemon.value?.stats.map(({ stat: { name }, base_stat }): [string, number] => [name, base_stat]))
+
+getPokemonData().then((result) => {pokemon.value = result})
+  
+
 </script>
 
 <style scoped>
 .name {
     text-transform: capitalize;
+}
+
+.details {
+    display: flex;
+    flex-direction: row;
 }
 .stats div {
     display: contents;
