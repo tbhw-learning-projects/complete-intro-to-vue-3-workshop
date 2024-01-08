@@ -2,58 +2,51 @@
 import PokemonListPage from './components/pages/PokemonListPage.vue';
 import PokemonDetailsPage from './components/pages/PokemonDetailsPage.vue';
 import BaseLayout from './components/layouts/BaseLayout.vue';
-</script>
+import { computed, ref } from 'vue';
 
-<script lang="ts">
+const activePage = ref('List');
+const activePokemon = ref<null | number>(null);
 
-export default {
-  components: { ListPage: PokemonListPage, DetailsPage: PokemonDetailsPage },
-  data: () => ({
-    activePage: "List",
-    activePokemon: null as null | number
-  }),
-  computed: {
-    activePageComponent() {
-      return this.activePage + "Page"
-    },
-    activePageProps() {
-      if (this.activePage === "List") {
-        return {}
-      } else {
-        return {
-          id: this.activePokemon
-        }
-      }
-    }
-  },
-  methods: {
-    setPage(page: string | number) {
-      if (typeof page === "string") {
-        this.activePage = page
-        this.activePokemon = null;
-      } else {
-        this.activePage = "Details"
-        this.activePokemon = page;
-      }
-    }
-  },
-};
+const activePageComponent = computed(() => {
+  switch (activePage.value) {
+    case 'List':
+      return PokemonListPage;
+    default:
+      return PokemonDetailsPage;
+  }
+});
+const activePageProps = computed(() => {
+  if (activePage.value === 'List') {
+    return {};
+  } else {
+    return {
+      id: activePokemon.value
+    };
+  }
+});
+
+function setPage(page: unknown) {
+  if (typeof page === 'number') { 
+    activePage.value = 'Details';
+    activePokemon.value = page;
+  } else if (typeof page === "string") {
+    activePage.value = page;
+    activePokemon.value = null;
+  }
+}
 </script>
 
 <template>
   <BaseLayout @navigate="setPage('List')">
     <Suspense>
-      <component :is="activePageComponent" @navigate="setPage" v-bind="activePageProps"/>
+      <component :is="activePageComponent" @navigate="setPage" v-bind="activePageProps" />
 
-      <template v-slot:fallback>
-        Loading...
-      </template>
+      <template v-slot:fallback> Loading... </template>
     </Suspense>
   </BaseLayout>
 </template>
 
 <style scoped>
-
 ul {
   list-style-type: none;
   margin: 0;

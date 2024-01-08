@@ -1,62 +1,53 @@
-<script lang="ts">
+<script setup lang="ts">
 import PokemonCard from '../PokemonCard.vue';
 import PokemonStats from '../PokemonStats.vue';
 import ImportPokemonForm from '../ImportPokemonForm.vue';
 import TwoColumnLayout from '../layouts/TwoColumnLayout.vue';
 import { PokemonClient, type Pokemon as RawPokemon } from 'pokenode-ts';
-import { reactive, toRefs } from 'vue';
+import { ref } from 'vue';
 
 export type Pokemon = RawPokemon;
 const client = new PokemonClient();
 
+const emit = defineEmits<{navigate: [id: number]}>();
 
-export default {
-  async setup(props, {emit}) {
-    const pokemonListPromise = client
-      .listPokemons(undefined, 151)
-      .then(({ results }) =>
-        Promise.all(results.map((pokemon) => client.getPokemonByName(pokemon.name)))
-      );
-    const typeListPromise = client.listTypes();
-    const [pokemonList, { results: typeList }] = await Promise.all([
-      pokemonListPromise,
-      typeListPromise
-    ]);
+const pokemonListPromise = client
+  .listPokemons(undefined, 151)
+  .then(({ results }) =>
+    Promise.all(results.map((pokemon) => client.getPokemonByName(pokemon.name)))
+  );
+const typeListPromise = client.listTypes();
+const [pokemonListResult, { results: typeListResult }] = await Promise.all([
+  pokemonListPromise,
+  typeListPromise
+]);
 
-    const state = reactive({
-      favoritePokemon: new Set(),
-      pokemonList,
-      typeList
-    });
+const favoritePokemon = ref(new Set());
+const pokemonList = ref(pokemonListResult);
+const typeList = ref(typeListResult);
 
-    function togglePokemonLike(id: number) {
-        if (state.favoritePokemon.has(id)) {
-        state.favoritePokemon.delete(id);
-      } else {
-        state.favoritePokemon.add(id);
-      }
+function togglePokemonLike(id: number) {
+  if (favoritePokemon.value.has(id)) {
+    favoritePokemon.value.delete(id);
+  } else {
+    favoritePokemon.value.add(id);
+  }
+}
+
+function goTo(id: number) {
+  emit('navigate', id);
+}
+
+async function importPokemon(pokemon: { name: string }) {
+  if (!pokemonList.value.some(({ name }) => name === pokemon.name)) {
+    try {
+      const importedPokemon = await client.getPokemonByName(pokemon.name);
+      pokemonList.value.push(importedPokemon);
+    } catch (e) {
+      console.warn(e);
     }
-
-    function goTo(id: number) {
-        emit("navigate", id)
-    }
-
-    async function importPokemon(pokemon: { name: string }) {
-      if (!state.pokemonList.some(({ name }) => name === pokemon.name)) {
-        try {
-          const importedPokemon = await client.getPokemonByName(pokemon.name);
-          state.pokemonList.push(importedPokemon);
-        } catch (e) {
-          console.warn(e);
-        }
-      }
-    }
-
-    return {...toRefs(state), togglePokemonLike, importPokemon, goTo};
-  },
-  components: { PokemonStats, PokemonCard, TwoColumnLayout, ImportPokemonForm },
-  emits: ['navigate'],
-};
+  }
+}
 </script>
 
 <template>
