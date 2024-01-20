@@ -1,42 +1,44 @@
 <template>
-  <a class="card" href="#" @click.prevent="viewDetails(pokemon.id)">
+  <RouterLink class="card" :to="{name: 'pokemon-details', 'params': {name: pokemon.name}}" @click.prevent="viewDetails(pokemon.id)">
     <p class="name">{{ pokemon.name }}</p>
     <img v-bind:src="imageUrl" v-bind:alt="'An image of ' + pokemon.name"/>
     <button v-if="isFavorite" @click="toggleLike">❤️</button>
     <button v-else @click.prevent="toggleLike">🤍</button>
-  </a>
+  </RouterLink>
 </template>
 
 <script lang="ts">
+import type { Pokemon } from 'pokenode-ts';
 import type { PropType } from 'vue';
-import type { Pokemon } from './pages/PokemonListPage.vue';
+import { RouterLink } from 'vue-router';
 
 export default {
-  props: {
-    pokemon: {
-      type: Object as PropType<Pokemon>,
-      required: true
+    props: {
+        pokemon: {
+            type: Object as PropType<Pokemon>,
+            required: true
+        },
+        isFavorite: {
+            type: Boolean,
+            required: true
+        }
     },
-    isFavorite: {
-      type: Boolean,
-      required: true
-    }
-  },
-  computed: {
-    imageUrl() {
-      return this.pokemon.sprites.front_default ?? undefined
-    }
-  },
-  emits: ['toggle-favorite', 'view-details'],
-  methods: {
-    toggleLike(event: Event) {
-      event.stopPropagation()
-      this.$emit('toggle-favorite', this.pokemon.id);
+    computed: {
+        imageUrl() {
+            return this.pokemon.sprites.front_default ?? undefined;
+        }
     },
-    viewDetails(id: number) {
-      this.$emit('view-details', id);
-    }
-  }
+    emits: ['toggle-favorite', 'view-details'],
+    methods: {
+        toggleLike(event: Event) {
+            event.stopPropagation();
+            this.$emit('toggle-favorite', this.pokemon.id);
+        },
+        viewDetails(id: number) {
+            this.$emit('view-details', id);
+        }
+    },
+    components: { RouterLink }
 };
 </script>
 

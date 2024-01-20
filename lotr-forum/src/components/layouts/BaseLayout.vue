@@ -1,19 +1,12 @@
-<script lang="ts">
-export default {
-  emits: ['navigate'],
-  methods: {
-    goTo(destination: string) {
-      this.$emit('navigate', { destination });
-    }
-  }
-};
+<script setup lang="ts">
+import {RouterLink} from "vue-router";
 </script>
 
 <template>
   <header class="header">
-    <a href="#" @click.prevent="goTo('/')">
+    <RouterLink to="/">
       <h1>Pokemon Explorer</h1>
-    </a>
+    </RouterLink>
   </header>
   <div class="wrapper">
     <slot />
@@ -23,7 +16,6 @@ export default {
 <style scoped>
 .wrapper {
   max-width: 1440px;
-  width: 100%;
   margin: 1rem 2rem 0 2rem;
 
   display: flex;

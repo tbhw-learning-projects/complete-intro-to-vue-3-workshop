@@ -6,10 +6,13 @@
     "composite": true,
     "noEmit": true,
     "baseUrl": ".",
+    "lib": ["ES2022", "DOM"],
     "paths": {
       "@/*": ["./src/*"],
       "@composables/*": ["./src/composables/*"],
       "@components/*": ["./src/components/*"],
+      "@stores/*": ["./src/stores/*"],
+      "@views/*": ["./src/views/*"],
     }
   }
 }
